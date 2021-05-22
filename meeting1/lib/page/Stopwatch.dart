@@ -8,13 +8,13 @@ class Stopwatch extends StatefulWidget {
 }
 
 class _StopwatchState extends State<Stopwatch> {
-  List<String> _ListStopwatchState = ['Stop', 'Run', 'Pause'];
+  List<String> _listStopwatchState = ['Stop', 'Run', 'Pause'];
   String _strStateStopwatch = 'stop';
   int _time = 0;
   late Timer _timer;
   List<String> _saveTimes = [];
 
-  Widget StateBtns(String _stopwatchTimer) {
+  Widget stateBtns(String _stopwatchTimer) {
     Widget stateBtns = ElevatedButton(
       onPressed: () {
         _timer = Timer.periodic(Duration(milliseconds: 10), (timer) {
@@ -23,7 +23,7 @@ class _StopwatchState extends State<Stopwatch> {
           });
         });
         setState(() {
-          _strStateStopwatch = _ListStopwatchState[1];
+          _strStateStopwatch = _listStopwatchState[1];
         });
       },
       child: Text(
@@ -36,7 +36,7 @@ class _StopwatchState extends State<Stopwatch> {
               borderRadius: new BorderRadius.circular(30.0))),
     );
 
-    if (_strStateStopwatch == _ListStopwatchState[1]) {
+    if (_strStateStopwatch == _listStopwatchState[1]) {
       stateBtns = Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -44,7 +44,7 @@ class _StopwatchState extends State<Stopwatch> {
             onPressed: () {
               if (_timer.isActive) _timer.cancel();
               setState(() {
-                _strStateStopwatch = _ListStopwatchState[2];
+                _strStateStopwatch = _listStopwatchState[2];
               });
             },
             child: Text(
@@ -73,7 +73,7 @@ class _StopwatchState extends State<Stopwatch> {
           )
         ],
       );
-    } else if (_strStateStopwatch == _ListStopwatchState[2]) {
+    } else if (_strStateStopwatch == _listStopwatchState[2]) {
       stateBtns = Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -85,7 +85,7 @@ class _StopwatchState extends State<Stopwatch> {
                 });
               });
               setState(() {
-                _strStateStopwatch = _ListStopwatchState[1];
+                _strStateStopwatch = _listStopwatchState[1];
               });
             },
             child: Text(
@@ -99,10 +99,11 @@ class _StopwatchState extends State<Stopwatch> {
           ),
           ElevatedButton(
             onPressed: () {
+              //TODO 구간기록 초기화 기능 추가.
               if (_timer.isActive) _timer.cancel();
               _time = 0;
               setState(() {
-                _strStateStopwatch = _ListStopwatchState[0];
+                _strStateStopwatch = _listStopwatchState[0];
               });
             },
             child: Text(
@@ -163,7 +164,7 @@ class _StopwatchState extends State<Stopwatch> {
             height: 450,
           ),
           SizedBox(height: 100),
-          StateBtns(_stopwatchTimer),
+          stateBtns(_stopwatchTimer),
         ],
       ),
     );
