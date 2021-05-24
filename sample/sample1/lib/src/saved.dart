@@ -1,5 +1,6 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
+import 'bloc/Bloc.dart';
 
 class SavedList extends StatefulWidget {
   SavedList({@required this.saved});
@@ -25,15 +26,22 @@ class _SavedListState extends State<SavedList> {
   }
 
   Widget _buildList() {
-    return ListView.builder(
-      itemBuilder: (context, index) {
-        if (index.isOdd) return Divider();
+    return StreamBuilder<Set<WordPair>>(
+        stream: bloc.savedListStream,
+        builder: (context, snapshot) {
+          var saved = Set<WordPair>();
+          snapshot.hasData ? saved.addAll(snapshot.data) : bloc.addCurrentSaved;
 
-        var realIndex = index ~/ 2;
-        return _buildRow(widget.saved[realIndex]);
-      },
-      itemCount: widget.saved.length * 2,
-    );
+          return ListView.builder(
+            itemBuilder: (context, index) {
+              if (index.isOdd) return Divider();
+
+              var realIndex = index ~/ 2;
+              return _buildRow(widget.saved.toList()[realIndex]);
+            },
+            itemCount: widget.saved.length * 2,
+          );
+        });
   }
 
   Widget _buildRow(WordPair pair) {
@@ -43,9 +51,7 @@ class _SavedListState extends State<SavedList> {
         textScaleFactor: 1.5,
       ),
       onTap: () {
-        setState(() {
-          widget.saved.remove(pair);
-        });
+        bloc.addToOrRemoveFromSavedList(pair);
       },
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
 import 'saved.dart';
+import 'bloc/Bloc.dart';
 
 class RandomList extends StatefulWidget {
   @override
@@ -9,7 +10,6 @@ class RandomList extends StatefulWidget {
 
 class _RandomListState extends State<RandomList> {
   final List<WordPair> _suggestions = <WordPair>[];
-  final Set<WordPair> _saved = Set<WordPair>();
 
   @override
   Widget build(BuildContext context) {
@@ -19,8 +19,8 @@ class _RandomListState extends State<RandomList> {
           actions: <Widget>[
             IconButton(
                 onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => SavedList(saved: _saved)));
+                  Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => SavedList()));
                 },
                 icon: Icon(Icons.list))
           ],
@@ -29,20 +29,25 @@ class _RandomListState extends State<RandomList> {
   }
 
   Widget _buildList() {
-    return ListView.builder(itemBuilder: (context, index) {
-      if (index.isOdd) return Divider();
+    return StreamBuilder<Set<WordPair>>(
+        stream: bloc.savedListStream,
+        builder: (context, snapshot) {
+          return ListView.builder(itemBuilder: (context, index) {
+            if (index.isOdd) return Divider();
 
-      var realIndex = index ~/ 2;
+            var realIndex = index ~/ 2;
 
-      if (realIndex >= _suggestions.length) {
-        _suggestions.addAll(generateWordPairs().take(10));
-      }
-      return _buildRow(_suggestions[realIndex]);
-    });
+            if (realIndex >= _suggestions.length) {
+              _suggestions.addAll(generateWordPairs().take(10));
+            }
+            return _buildRow(
+                snapshot.data ?? Set<WordPair>(), _suggestions[realIndex]);
+          });
+        });
   }
 
-  Widget _buildRow(WordPair pair) {
-    final bool alreadySaved = _saved.contains(pair);
+  Widget _buildRow(Set<WordPair> saved, WordPair pair) {
+    final bool alreadySaved = saved.contains(pair);
 
     return ListTile(
       title: Text(
@@ -54,9 +59,7 @@ class _RandomListState extends State<RandomList> {
         color: Colors.pink,
       ),
       onTap: () {
-        setState(() {
-          alreadySaved ? _saved.remove(pair) : _saved.add(pair);
-        });
+        bloc.addToOrRemoveFromSavedList(pair);
       },
     );
   }
