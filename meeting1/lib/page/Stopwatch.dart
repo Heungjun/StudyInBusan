@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:meeting1/style/styleStopwatchElevatedButton.dart';
 
 class Stopwatch extends StatefulWidget {
   @override
@@ -12,7 +13,7 @@ class _StopwatchState extends State<Stopwatch> {
   String _strStateStopwatch = 'stop';
   int _time = 0;
   late Timer _timer;
-  List<String> _saveTimes = [];
+  List<String> _saveTimes = <String>[];
 
   Widget stateBtns(String _stopwatchTimer) {
     Widget stateBtns = ElevatedButton(
@@ -30,10 +31,7 @@ class _StopwatchState extends State<Stopwatch> {
         '시작',
         style: TextStyle(color: Colors.white),
       ),
-      style: ElevatedButton.styleFrom(
-          primary: Colors.purple,
-          shape: new RoundedRectangleBorder(
-              borderRadius: new BorderRadius.circular(30.0))),
+      style: styleStopwatchElevatedButton(),
     );
 
     if (_strStateStopwatch == _listStopwatchState[1]) {
@@ -51,25 +49,20 @@ class _StopwatchState extends State<Stopwatch> {
               '중지',
               style: TextStyle(color: Colors.white),
             ),
-            style: ElevatedButton.styleFrom(
-                primary: Colors.purple,
-                shape: new RoundedRectangleBorder(
-                    borderRadius: new BorderRadius.circular(30.0))),
+            style: styleStopwatchElevatedButton(),
           ),
           ElevatedButton(
             onPressed: () {
               setState(() {
                 _saveTimes.insert(0, _stopwatchTimer);
+                print('len:${_saveTimes.length} <> ${_stopwatchTimer}');
               });
             },
             child: Text(
               '구간기록',
               style: TextStyle(color: Colors.white),
             ),
-            style: ElevatedButton.styleFrom(
-                primary: Colors.purple,
-                shape: new RoundedRectangleBorder(
-                    borderRadius: new BorderRadius.circular(30.0))),
+            style: styleStopwatchElevatedButton(),
           )
         ],
       );
@@ -92,14 +85,12 @@ class _StopwatchState extends State<Stopwatch> {
               '계속',
               style: TextStyle(color: Colors.white),
             ),
-            style: ElevatedButton.styleFrom(
-                primary: Colors.purple,
-                shape: new RoundedRectangleBorder(
-                    borderRadius: new BorderRadius.circular(30.0))),
+            style: styleStopwatchElevatedButton(),
           ),
           ElevatedButton(
             onPressed: () {
               //TODO 구간기록 초기화 기능 추가.
+              _saveTimes.clear();
               if (_timer.isActive) _timer.cancel();
               _time = 0;
               setState(() {
@@ -110,10 +101,7 @@ class _StopwatchState extends State<Stopwatch> {
               '초기화',
               style: TextStyle(color: Colors.white),
             ),
-            style: ElevatedButton.styleFrom(
-                primary: Colors.purple,
-                shape: new RoundedRectangleBorder(
-                    borderRadius: new BorderRadius.circular(30.0))),
+            style: styleStopwatchElevatedButton(),
           )
         ],
       );
@@ -146,13 +134,19 @@ class _StopwatchState extends State<Stopwatch> {
                   ),
                 ),
                 _saveTimes.length > 0
-                    ? ListView(
-                        children: _saveTimes
-                            .map((time) => Text(
-                                  time,
-                                  style: TextStyle(color: Colors.white),
-                                ))
-                            .toList(),
+                    ? Expanded(
+                        child: ListView.builder(
+                          itemCount: _saveTimes.length,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              height: 50,
+                              child: Text(
+                                '${_saveTimes[index]}',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            );
+                          },
+                        ),
                       )
                     : SizedBox(
                         height: 0,
