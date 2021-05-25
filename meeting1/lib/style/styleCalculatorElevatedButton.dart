@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 ButtonStyle styleCalculationElevatedButton() {
   return ButtonStyle(
     backgroundColor:
-        MaterialStateProperty.resolveWith((states) => Colors.purpleAccent),
+        MaterialStateProperty.resolveWith((states) => Colors.blueAccent),
     padding: MaterialStateProperty.all<EdgeInsets>(
       EdgeInsets.all(30.0),
     ),

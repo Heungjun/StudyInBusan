@@ -89,7 +89,6 @@ class _StopwatchState extends State<Stopwatch> {
           ),
           ElevatedButton(
             onPressed: () {
-              //TODO 구간기록 초기화 기능 추가.
               _saveTimes.clear();
               if (_timer.isActive) _timer.cancel();
               _time = 0;
@@ -135,6 +134,7 @@ class _StopwatchState extends State<Stopwatch> {
                 ),
                 _saveTimes.length > 0
                     ? Expanded(
+                        //TODO: ListView UI 만들기
                         child: ListView.builder(
                           itemCount: _saveTimes.length,
                           itemBuilder: (context, index) {
