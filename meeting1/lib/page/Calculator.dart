@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meeting1/style/styleCalculatorElevatedButton.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class Calculator extends StatefulWidget {
   @override
@@ -12,20 +13,54 @@ class _CalculatorState extends State<Calculator> {
   String equation = "";
   double equationTextFontSize = 40;
 
+  List<num> numbers = [];
+  List<String> opers = [];
+  List<String> postpix = [];
+  num number = 0;
+  String oper = '';
+
+  void errorMessage(String text) => Fluttertoast.showToast(msg: text);
+
   void btnOnclick(String key) {
-    //TODO: validation check 기능
-    //TODO: 계산 로직 구현
+    // valdation check 1. / 0
+    if (oper == '/' && key == '0') {
+      errorMessage('0으로 나눌 수 없습니다.');
+      return;
+    }
+
     setState(() {
-      if (key == 'C') {
+      if (key == 'C' || key == '=') {
+        if (key == '=') {
+          numbers.add(number);
+          String st = 'st: ';
+          numbers.forEach((element) => st += '$element, ');
+          opers.forEach((element) => st += '$element, ');
+          print(st);
+        }
         equation = "";
+        number = 0;
+        oper = '';
+        numbers.clear();
+        opers.clear();
         equationTextFontSize = 40;
-      } else
+        return;
+      }
+
+      if (key == '+' || key == '-' || key == '/' || key == '*') {
+        if (number == 0) return;
+
+        numbers.add(number);
+        number = 0;
+        opers.add(key);
+        oper = key;
         equation += key;
+      } else {
+        number = number * 10 + int.parse(key);
+        if (number != 0) equation += key;
+      }
 
       if (equation.length >= 10) equationTextFontSize = 22;
     });
-
-    print(equation.length);
   }
 
   @override
