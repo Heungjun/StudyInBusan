@@ -7,23 +7,21 @@ class Calculator extends StatefulWidget {
   _CalculatorState createState() => _CalculatorState();
 }
 
+//TODO: 로직 간소화하고 깔금하게 만들기
 class _CalculatorState extends State<Calculator> {
   EdgeInsets buttonPadding = EdgeInsets.all(5.0);
-  int result = 0;
   String equation = "";
   double equationTextFontSize = 40;
 
   List<num> numbers = [];
   List<String> opers = [];
-  List<String> postpix = [];
   num number = 0;
-  String oper = '';
 
   void errorMessage(String text) => Fluttertoast.showToast(msg: text);
 
   void btnOnclick(String key) {
     // valdation check 1. / 0
-    if (oper == '/' && key == '0') {
+    if (opers.isNotEmpty && opers.last == '/' && key == '0') {
       errorMessage('0으로 나눌 수 없습니다.');
       return;
     }
@@ -31,28 +29,58 @@ class _CalculatorState extends State<Calculator> {
     setState(() {
       if (key == 'C' || key == '=') {
         if (key == '=') {
-          numbers.add(number);
-          String st = 'st: ';
-          numbers.forEach((element) => st += '$element, ');
-          opers.forEach((element) => st += '$element, ');
-          print(st);
+          if (opers.isEmpty) return;
+          if (opers.length > numbers.length) return;
+
+          if (opers.last == '*') {
+            if (number == 0) number = 1;
+            numbers.last = numbers.last * number;
+            opers.removeLast();
+          } else if (opers.last == '/') {
+            if (number == 0) number = 1;
+            numbers.last = numbers.last / number;
+            opers.removeLast();
+          } else {
+            numbers.add(number);
+          }
+
+          num result = numbers.first;
+
+          for (int i = 0, loopCnt = opers.length; i < loopCnt; i++) {
+            if (opers[i] == '+')
+              result += numbers[i + 1];
+            else if (opers[i] == '-') result -= numbers[i + 1];
+          }
+
+          number = result;
+          equation = result.toString();
+        } else {
+          number = 0;
+          equation = "";
         }
-        equation = "";
-        number = 0;
-        oper = '';
+
         numbers.clear();
         opers.clear();
         equationTextFontSize = 40;
+
         return;
       }
 
       if (key == '+' || key == '-' || key == '/' || key == '*') {
         if (number == 0) return;
 
-        numbers.add(number);
+        if (opers.isNotEmpty && opers.last == '*') {
+          numbers.last = numbers.last * number;
+          opers.last = key;
+        } else if (opers.isNotEmpty && opers.last == '/') {
+          numbers.last = numbers.last / number;
+          opers.last = key;
+        } else {
+          numbers.add(number);
+          opers.add(key);
+        }
+
         number = 0;
-        opers.add(key);
-        oper = key;
         equation += key;
       } else {
         number = number * 10 + int.parse(key);
