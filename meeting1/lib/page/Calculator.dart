@@ -15,7 +15,7 @@ class _CalculatorState extends State<Calculator> {
   List<Pair<num, String>> numbersNOperators = [];
   List<String> numbersNOperatorsHistory = [];
   num number = 0;
-  bool isPreButtonNumber = false;
+  bool isPreButtonNumber = false; // 초기 function button 입력 방지
 
   String lastKey = '';
 
@@ -34,10 +34,13 @@ class _CalculatorState extends State<Calculator> {
       if (numbersNOperators.length > 0) {
         numbersNOperators.last.second = lastKey;
         numbersNOperatorsHistory.last = lastKey;
+        print('in');
       }
+      print('out');
       return;
     }
 
+    isPreButtonNumber = false;
     switch (lastKey) {
       case 'C':
         clear();
@@ -48,7 +51,6 @@ class _CalculatorState extends State<Calculator> {
       default:
         operatorClick();
     }
-    isPreButtonNumber = false;
   }
   // function button click />
 
@@ -58,6 +60,7 @@ class _CalculatorState extends State<Calculator> {
     numbersNOperators.clear();
     numbersNOperatorsHistory.clear();
     equationTextFontSize = 40;
+    isPreButtonNumber = true;
   }
   // 'C' />
 
