@@ -1,113 +1,141 @@
 import 'package:flutter/material.dart';
-import 'package:meeting1/style/styleCalculatorElevatedButton.dart'; //todo:delete
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:meeting1/widget/calculatorButton.dart';
+import 'package:meeting1/common.dart';
 
 class Calculator extends StatefulWidget {
   @override
   _CalculatorState createState() => _CalculatorState();
 }
 
-//TODO: 로직 간소화하고 깔금하게 만들기
 class _CalculatorState extends State<Calculator> {
-  //TODO: delete
-  EdgeInsets buttonPadding = EdgeInsets.all(5.0);
-  String equation = "";
+  String equation = "0";
   double equationTextFontSize = 40;
 
-  List<num> numbers = [];
-  List<String> opers = [];
+  List<Pair<num, String>> numbersNOperators = [];
+  List<String> numbersNOperatorsHistory = [];
   num number = 0;
+  bool isPreButtonNumber = false;
 
-  List<String> calculatorButtons = [
-    '1',
-    '2',
-    '3',
-    '+',
-    '4',
-    '5',
-    '6',
-    '-',
-    '7',
-    '8',
-    '9',
-    '*',
-    'C',
-    '0',
-    '=',
-    '/'
-  ];
+  String lastKey = '';
 
   void errorMessage(String text) => Fluttertoast.showToast(msg: text);
 
-  void btnOnclick(String key) {
-    // valdation check 1. / 0
-    if (opers.isNotEmpty && opers.last == '/' && key == '0') {
-      errorMessage('0으로 나눌 수 없습니다.');
+  // number button click
+  void numberButtonClick() {
+    isPreButtonNumber = true;
+    number = number * 10 + int.parse(lastKey);
+  }
+  // number button click />
+
+  // function button click
+  void functionButtonClick() {
+    if (!isPreButtonNumber) {
+      if (numbersNOperators.length > 0) {
+        numbersNOperators.last.second = lastKey;
+        numbersNOperatorsHistory.last = lastKey;
+      }
       return;
     }
 
-    setState(() {
-      if (key == 'C' || key == '=') {
-        if (key == '=') {
-          if (opers.isEmpty) return;
-          if (opers.length > numbers.length) return;
+    switch (lastKey) {
+      case 'C':
+        clear();
+        break;
+      case '=':
+        result();
+        break;
+      default:
+        operatorClick();
+    }
+    isPreButtonNumber = false;
+  }
+  // function button click />
 
-          if (opers.last == '*') {
-            if (number == 0) number = 1;
-            numbers.last = numbers.last * number;
-            opers.removeLast();
-          } else if (opers.last == '/') {
-            if (number == 0) number = 1;
-            numbers.last = numbers.last / number;
-            opers.removeLast();
-          } else {
-            numbers.add(number);
-          }
+  // function 'C'
+  void clear([number = 0]) {
+    this.number = number;
+    numbersNOperators.clear();
+    numbersNOperatorsHistory.clear();
+    equationTextFontSize = 40;
+  }
+  // 'C' />
 
-          num result = numbers.first;
+  void result() {
+    if (numbersNOperators.isEmpty) return;
 
-          for (int i = 0, loopCnt = opers.length; i < loopCnt; i++) {
-            if (opers[i] == '+')
-              result += numbers[i + 1];
-            else if (opers[i] == '-') result -= numbers[i + 1];
-          }
+    Pair<num, String> lastPair = numbersNOperators.last;
 
-          number = result;
-          equation = result.toString();
-        } else {
-          number = 0;
-          equation = "";
-        }
-
-        numbers.clear();
-        opers.clear();
-        equationTextFontSize = 40;
-
+    if (lastPair.second == '*') {
+      number = lastPair.first * number;
+      numbersNOperators.removeLast();
+    } else if (lastPair.second == '/') {
+      if (number == 0) {
+        errorMessage('0으로 나눌 수 없습니다.');
         return;
       }
+      number = lastPair.first / number;
+      numbersNOperators.removeLast();
+    }
 
-      if (key == '+' || key == '-' || key == '/' || key == '*') {
-        if (number == 0) return;
+    num result = number;
+    num currentNumber = 0;
+    String currentOperator = '';
+    for (int i = 0, loopCnt = numbersNOperators.length; i < loopCnt; i++) {
+      currentNumber = numbersNOperators[i].first;
+      currentOperator = numbersNOperators[i].second;
 
-        if (opers.isNotEmpty && opers.last == '*') {
-          numbers.last = numbers.last * number;
-          opers.last = key;
-        } else if (opers.isNotEmpty && opers.last == '/') {
-          numbers.last = numbers.last / number;
-          opers.last = key;
-        } else {
-          numbers.add(number);
-          opers.add(key);
+      if (currentOperator == '+')
+        result += currentNumber;
+      else if (currentOperator == '-')
+        result -= currentNumber;
+      else
+        errorMessage('오류 발생: $currentOperator');
+    }
+
+    clear(result);
+  }
+
+  void operatorClick() {
+    if (numbersNOperators.isEmpty)
+      numbersNOperators.add(Pair(number, lastKey));
+    else {
+      Pair<num, String> lastPair = numbersNOperators.last;
+
+      if (lastPair.second == '*') {
+        numbersNOperators.last.first = lastPair.first * number;
+        numbersNOperators.last.second = lastKey;
+      } else if (lastPair.second == '/') {
+        if (number == 0) {
+          errorMessage('0으로 나눌 수 없습니다.');
+          return;
         }
-
-        number = 0;
-        equation += key;
+        numbersNOperators.last.first = lastPair.first / number;
+        numbersNOperators.last.second = lastPair.second;
       } else {
-        number = number * 10 + int.parse(key);
-        if (number != 0) equation += key;
+        numbersNOperators.add(Pair(number, lastKey));
       }
+    }
 
+    numbersNOperatorsHistory.add('$number');
+    numbersNOperatorsHistory.add(lastKey);
+    number = 0;
+  }
+
+  void outputEquation() {
+    equation = '';
+    numbersNOperatorsHistory.forEach((element) => equation += ' $element');
+    equation += number.toString();
+  }
+
+  void btnOnclick(String key) {
+    setState(() {
+      lastKey = key;
+      int.tryParse(lastKey) == null
+          ? functionButtonClick()
+          : numberButtonClick();
+
+      outputEquation();
       if (equation.length >= 10) equationTextFontSize = 22;
     });
   }
@@ -145,3 +173,22 @@ class _CalculatorState extends State<Calculator> {
     );
   }
 }
+
+final List<String> calculatorButtons = [
+  '1',
+  '2',
+  '3',
+  '+',
+  '4',
+  '5',
+  '6',
+  '-',
+  '7',
+  '8',
+  '9',
+  '*',
+  'C',
+  '0',
+  '=',
+  '/'
+];
