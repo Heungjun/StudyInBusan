@@ -81,12 +81,12 @@ class _CalculatorState extends State<Calculator> {
       numbersNOperators.removeLast();
     }
 
-    num result = number;
+    num result = numbersNOperators[0].first;
     num currentNumber = 0;
     String currentOperator = '';
-    for (int i = 0, loopCnt = numbersNOperators.length; i < loopCnt; i++) {
+    for (int i = 1, loopCnt = numbersNOperators.length; i < loopCnt; i++) {
       currentNumber = numbersNOperators[i].first;
-      currentOperator = numbersNOperators[i].second;
+      currentOperator = numbersNOperators[i - 1].second;
 
       if (currentOperator == '+')
         result += currentNumber;
@@ -96,6 +96,8 @@ class _CalculatorState extends State<Calculator> {
         errorMessage('오류 발생: $currentOperator');
     }
 
+    currentOperator = numbersNOperators.last.second;
+    currentOperator == '+' ? result += number : result -= number;
     clear(result);
   }
 
