@@ -16,7 +16,7 @@ class Home extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('${snapshot.data?.displayName ?? '고객'}님 환영합니다.'),
+                  Text('${snapshot.data?.email ?? '고객'}님 환영합니다.'),
                   TextButton(
                       onPressed: FirebaseAuth.instance.signOut,
                       child: Text('로그 아웃'))
