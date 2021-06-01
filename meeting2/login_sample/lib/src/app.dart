@@ -16,7 +16,7 @@ class App extends StatelessWidget {
           );
 
         if (snapshot.connectionState == ConnectionState.done) return Home();
-        return CircularProgressIndicator();
+        return Center(child: CircularProgressIndicator());
         // return (snapshot.connectionState == ConnectionState.done) ? Home() : CircularProgressIndicator();
       },
     );

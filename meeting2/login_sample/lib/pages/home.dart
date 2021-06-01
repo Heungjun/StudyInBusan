@@ -11,17 +11,20 @@ class Home extends StatelessWidget {
       body: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
-          if (!snapshot.hasData)
-            return LoginWidget();
-          else
+          if (snapshot.hasData)
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('${snapshot.data?.displayName ?? 'Guest'}님 환영합니다.'),
+                  Text('${snapshot.data?.displayName ?? '고객'}님 환영합니다.'),
+                  TextButton(
+                      onPressed: FirebaseAuth.instance.signOut,
+                      child: Text('로그 아웃'))
                 ],
               ),
             );
+          else
+            return LoginWidget();
         },
       ),
     );
